@@ -3,3 +3,28 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+.calender {
+  background: #d2d2d2;
+  padding: 10px;
+}
+
+table {
+  width: 100%;
+}
+
+.day.current-day {
+  background: #f23636;
+}
+
+td {
+  padding: 10px;
+}
+
+.label-month, .label-year {
+  padding: 10px;
+}
+
+.fas {
+  cursor: pointer;
+}
