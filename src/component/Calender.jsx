@@ -289,6 +289,7 @@ class Calender extends Component {
         </div>
         { this.state.showForm
           ?
+          
           <div className="task-form" style={contentMenuStyle}>
             <div>
               <h2>Create an event</h2>

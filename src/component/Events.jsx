@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactCSSTransitionGroup from 'react-transition-group/CSSTransitionGroup'
 
 class Events extends React.Component {
 
@@ -26,14 +27,18 @@ class Events extends React.Component {
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <ReactCSSTransitionGroup
+              component = 'tbody'
+              transitionName = 'example'
+              transitionEnterTimeout = {500}
+              transitionLeaveTimeout = {300}>
           {filterEvent.map(eve => (
-            <tr key={eve.id}>
-              <td className="ta-center">{eve.year +' '+ eve.month + ' ' + eve.day + ' - ' + eve.event}</td>
-              <td className="ta-center"><button className="btn btn-sm btn-primary" onClick={() => this.props.completeEvent(eve.id)}>complete</button></td>
-            </tr>
+              <tr key={eve.id}>
+                <td className="ta-center">{eve.month + ' ' + eve.day + ' - ' + eve.event}</td>
+                <td className="ta-center"><button className="btn btn-sm btn-primary" onClick={() => this.props.completeEvent(eve.id)}>complete</button></td>
+              </tr>
           ))}
-          </tbody>
+          </ReactCSSTransitionGroup>
         </table>
       </div>
     )
