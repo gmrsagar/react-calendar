@@ -2,14 +2,24 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import YearNav from './YearNav';
 import MonthNav from './MonthNav';
-// import Cell from './Cell';
+import Events from './Events';
+// import Popup from 'react-popup';
+import { bake_cookie, read_cookie, delete_cookie } from 'sfcookies';
+// import Prompt from './Prompt';
 
 class Calender extends Component {
 
   state = {
     dateContext: moment(), //initialize date in state using moment.js
     today: moment(),
-    showMonthPopup: false
+    showMonthPopup: false,
+    showForm: false,
+    eventBody: '',
+    eventDay : '',
+    eventTitle: '',
+    mouseX: '',
+    mouseY: '',
+    monthEvents: read_cookie('events')
   }
 
   weekdays = moment.weekdays(); //[sunday, monday] array returned
@@ -45,14 +55,11 @@ class Calender extends Component {
     return firstDay;
   }
 
-  // setMonth = (month) => {
-  //   let monthNo = this.months.indexOf(month);
-  //   let dateContext = Object.assign({}, this.state.dateContext);
-  //   dateContext = moment(dateContext).set("month", month);
-  //   this.setState({
-  //     dateContext: dateContext
-  //   })
-  // }
+  lastDayOfMonth = () => {
+    let dateContext = this.state.dateContext;
+    let lastDay = moment(dateContext).endOf('month').format('d');
+    return lastDay;
+  }
 
   nextMonth = () => {
     let dateContext = Object.assign({}, this.state.dateContext);
@@ -86,44 +93,64 @@ class Calender extends Component {
     })
   }
 
-  // onSelectChange = (e, data) => {
-  //   this.setMonth(data);
-  //   this.props.onChangeMonth && this.props.onChangeMonth();
-  // }
-
-  // SelectList = (props) => {
-  //   let popup = props.data.map((data) => {
-  //     return (
-  //       <div key={data}>
-  //         <a onClick={(e) => {this.onSelectChange(e, data)}} href="#">{data}</a>
-  //       </div>
-  //     )
-  //   })
-
-  //   return (
-  //     <div className="month-popup">
-  //       {popup}
-  //     </div> 
-  //   )
-  // }
-
   onChangeMonth = (e, month) => {
     this.setState({
       showMonthPopup: !this.state.showMonthPopup
     })
   }
 
+  propMe = (idx) => {
+    this.setState({
+      showForm: !this.state.showForm,
+      eventDay: idx
+    })
+  }
 
-  // MonthNav = () => {
-  //   return (
-  //     <span onClick={(e) => {this.onChangeMonth(e, this.month())}} className="label-month">
-  //       {this.month()}
-  //       {this.state.showMonthPopup && 
-  //       <this.SelectList data={this.months} />
-  //       }
-  //     </span>
-  //   )
-  // }
+  eventCreator = (e) => {
+    if(e) e.preventDefault();
+    
+    let monthEvents = this.state.monthEvents;
+    let body = this.state.eventTitle;
+    let year = this.year()
+    let month = this.month()
+    let day = this.state.eventDay
+    let id = monthEvents.length + 1;
+
+    monthEvents.push(
+      {
+        id: id,
+        year: year,
+        month: month,
+        event: body,
+        day: day
+      }
+    )
+
+    bake_cookie('events', monthEvents)
+
+    this.setState({
+      showForm: !this.state.showForm,
+      monthEvents : monthEvents,
+      eventTitle: ''
+    })
+  }
+
+  _onMouseMove = (e) => {
+    this.setState({
+      mouseX: e.screenX,
+      mouseY: e.screenY
+    })
+  }
+
+  completeEvent = (id) => {
+    let monthEvents = this.state.monthEvents
+    monthEvents = monthEvents.filter(eve => eve.id !== id)
+    this.setState({
+      monthEvents: monthEvents
+    })
+    delete_cookie('events')
+    bake_cookie('events', monthEvents)
+  }
 
   render() {
     //Map weekdays short and create tr
@@ -140,22 +167,65 @@ class Calender extends Component {
      * Calculate the blanks in the month's first week
      */
     let blanks = [];
+    let prevMonth = Object.assign({}, this.state.dateContext); //create a new moment object
+    prevMonth = moment(prevMonth).subtract(1, 'month'); //switch to previous month
+
+    //get days in month from previous object and add 1 for printing purposes
+    let oldMonth = prevMonth.daysInMonth() + 1;
+
+    //retrieve the dates to fill in the blanks for new month
+    oldMonth = oldMonth - this.firstDayOfMonth();
+    if( this.firstDayOfMonth() == 0 ) {
+      oldMonth = oldMonth - 8;
+      for( let i = 1; i <= 7; i++ ) {
+        let blankMonth = oldMonth + i;
+        blanks.push(<td key={i*8.8} className="emptySlot">{blankMonth}</td>)
+      }
+    }
+
     for( let i = 0; i < this.firstDayOfMonth(); i++ ) {
-      blanks.push(<td key={i*4.6} className="emptySlot">{""}</td>);
+      let blankMonth = oldMonth + i;
+      blanks.push(<td key={i*4.6} className="emptySlot">{blankMonth}</td>);
     }
 
     /**
      * Grab all the days in a month
      */
     let daysInMonth = [];
+    let lastDay = 6 - this.lastDayOfMonth();
     for(let d = 1; d <= this.daysInMonth(); d++) {
       let className = (d == this.currentDay()) ? "day current-day" : "day";
       daysInMonth.push(
-        <td key={d} className={className}>
+        <td key={d} onClick={() => this.propMe(d)} className={className}>
           <span>{d}</span>
         </td>
       );
     }
+
+    if( this.lastDayOfMonth() >= 2 ) {
+      lastDay = lastDay + 7;
+      
+      for(let d = 1; d <= lastDay; d++) {
+        daysInMonth.push(
+          <td key={d} className="emptySlot">
+            <span>{d}</span>
+          </td>
+        )
+      }
+
+    } else {
+
+      for(let d = 1; d <= lastDay; d++) {
+        daysInMonth.push(
+          <td key={d} className="emptySlot">
+            <span>{d}</span>
+          </td>
+        )
+      }
+
+    }
+
+    
 
     /**
      * Add blank days and total days
@@ -192,26 +262,56 @@ class Calender extends Component {
         </tr>
       )
     })
+
+    let contentMenuStyle = {
+      position: 'absolute', 
+      left: this.state.mouseX,
+      top: this.state.mouseY - 60
+  };
   
     return (
-      <div className="calender-wrapper">
-        <table className="calender">
-          <thead>
-            <tr className="calender-header">
-              <MonthNav month={this.month} previousMonth={this.previouMonth} nextMonth={this.nextMonth} />
-              <td colSpan="3"></td>
-              <YearNav year={this.year} previousYear={this.previousYear} nextYear={this.nextYear} />
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              {weekdays}
-            </tr>
-            {trElems}
-          </tbody>
-        </table>
+      <div>
+        <div className="calender-wrapper">
+          <table className="calender table table-borderless">
+            <thead>
+              <tr className="calender-header">
+                <MonthNav month={this.month} previousMonth={this.previouMonth} nextMonth={this.nextMonth} />
+                <YearNav year={this.year} previousYear={this.previousYear} nextYear={this.nextYear} />
+              </tr>
+            </thead>
+            <tbody onClick= {this._onMouseMove}>
+              <tr>
+                {weekdays}
+              </tr>
+              {trElems}
+            </tbody>
+          </table>
+        </div>
+        { this.state.showForm
+          ?
+          <div className="task-form" style={contentMenuStyle}>
+            <div>
+              <h2>Create an event</h2>
+              <small>Event for {this.state.eventDay + ' ' + this.month() + ' ' + this.year()}</small>
+            </div>
+            <form onSubmit={this.eventCreator}>
+              <input
+                className="text-input"
+                onChange={(e) => this.setState({ eventTitle: e.target.value})}
+                value={this.state.eventTitle}
+                ref={(ip) => this.myInp = ip}
+                placeholder="Enter the task"
+                type="text"/>
+              <input className="btn btn-create" type="submit" value="Create"/>
+              <button className="btn btn-destroy" onClick={() => this.setState({ showForm: !this.state.showForm})}>Cancel</button>
+            </form>
+          </div> 
+          :
+        '' }
+          <Events completeEvent={this.completeEvent} month={this.month()} year={this.year()} monthEvents={this.state.monthEvents} />
       </div>
     )
+
   }
 }
 

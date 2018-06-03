@@ -7,14 +7,20 @@ body {
 .calender {
   background: #d2d2d2;
   padding: 10px;
+  text-align: center;
 }
 
 table {
+  table-layout: fixed;
   width: 100%;
 }
 
 .day.current-day {
   background: #f23636;
+}
+
+.emptySlot {
+  color: #f1f1f1;
 }
 
 td {

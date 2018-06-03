@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 const YearNav = props => (
-      <td colSpan="2" className="nav-year">
+      <td colSpan="3" className="nav-year">
         <i onClick={props.previousYear} className="fas fa-angle-left"></i>
         <span className="label-year">
           {props.year()}
