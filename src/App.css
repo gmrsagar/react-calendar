@@ -81,6 +81,15 @@ h1 {
   opacity: 0.01;
 }
 
+.event-btn {
+  margin-top: 10px;
+}
+
+.event-btn .btn {
+  float: right;
+  margin-left: 10px;
+}
+
 .example-enter.example-enter-active {
   opacity: 1;
   transition: opacity 500ms ease-in;

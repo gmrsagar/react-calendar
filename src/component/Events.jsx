@@ -6,15 +6,16 @@ class Events extends React.Component {
   state = {
     year: this.props.year,
     month: this.props.month,
-    events: this.props.monthEvents
+    events: this.props.monthEvents,
+    time: this.props.time
   }
-
+  
   render() {
 
     let filterEvent = this.props.monthEvents.filter((eve) => {
       return eve.month == this.props.month && eve.year == this.props.year
     });
-
+    
     return (
       <div className="event-wrapper">
         <div className="header">
@@ -34,7 +35,7 @@ class Events extends React.Component {
               transitionLeaveTimeout = {300}>
           {filterEvent.map(eve => (
               <tr key={eve.id}>
-                <td className="ta-center">{eve.month + ' ' + eve.day + ' - ' + eve.event}</td>
+                <td className="ta-center">{eve.month + ' ' + eve.day + ' at ' + eve.time + ' - ' + eve.event}</td>
                 <td className="ta-center"><button className="btn btn-sm btn-primary" onClick={() => this.props.completeEvent(eve.id)}>complete</button></td>
               </tr>
           ))}

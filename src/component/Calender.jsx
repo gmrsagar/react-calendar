@@ -17,6 +17,7 @@ class Calender extends Component {
     eventBody: '',
     eventDay : '',
     eventTitle: '',
+    eventTime: '',
     mouseX: '',
     mouseY: '',
     monthEvents: read_cookie('events')
@@ -112,6 +113,7 @@ class Calender extends Component {
     let monthEvents = this.state.monthEvents;
     let body = this.state.eventTitle;
     let year = this.year()
+    let time = this.state.eventTime;
     let month = this.month()
     let day = this.state.eventDay
     let id = monthEvents.length + 1;
@@ -122,6 +124,7 @@ class Calender extends Component {
         year: year,
         month: month,
         event: body,
+        time: time,
         day: day
       }
     )
@@ -268,7 +271,7 @@ class Calender extends Component {
       left: this.state.mouseX,
       top: this.state.mouseY - 60
   };
-  
+    console.log(this.state.eventTime)
     return (
       <div>
         <div className="calender-wrapper">
@@ -303,13 +306,20 @@ class Calender extends Component {
                 ref={(ip) => this.myInp = ip}
                 placeholder="Enter the task"
                 type="text"/>
-              <input className="btn btn-create" type="submit" value="Create"/>
-              <button className="btn btn-destroy" onClick={() => this.setState({ showForm: !this.state.showForm})}>Cancel</button>
+                <small>Enter Time</small>
+                <input
+                  onChange={(e) => this.setState({ eventTime: e.target.value })}
+                  value={this.state.eventTime}
+                  type="time"/>
+                <div className="event-btn">
+                  <input className="btn btn-sm btn-create" type="submit" value="Create"/>
+                  <button className="btn btn-sm btn-destroy" onClick={() => this.setState({ showForm: !this.state.showForm})}>Cancel</button>
+              </div>
             </form>
           </div> 
           :
         '' }
-          <Events completeEvent={this.completeEvent} month={this.month()} year={this.year()} monthEvents={this.state.monthEvents} />
+          <Events time={this.state.eventTime} completeEvent={this.completeEvent} month={this.month()} year={this.year()} monthEvents={this.state.monthEvents} />
       </div>
     )
 
