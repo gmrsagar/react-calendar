@@ -101,9 +101,12 @@ class Calender extends Component {
   }
 
   propMe = (idx) => {
+
     this.setState({
       showForm: !this.state.showForm,
       eventDay: idx
+    }, () => {
+      this.input.focus()
     })
   }
 
@@ -303,7 +306,7 @@ class Calender extends Component {
                 className="text-input"
                 onChange={(e) => this.setState({ eventTitle: e.target.value})}
                 value={this.state.eventTitle}
-                ref={(ip) => this.myInp = ip}
+                ref={(node) => {this.input = node} }
                 placeholder="Enter the task"
                 type="text"/>
                 <small>Enter Time</small>
